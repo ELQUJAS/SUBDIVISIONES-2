@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,12 +18,22 @@
             padding: 0;
             margin: 0;
         }
+        .latlng-control {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+        .leaflet-control-layers-search {
+            margin-bottom: 10px;
+        }
         </style>
-        <title></title>
+        <title>Mapa de Subdivisión Predial</title>
     </head>
     <body>
-        <div id="map">
-        </div>
+        <div id="map"></div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
@@ -35,6 +45,8 @@
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
         <script src="js/leaflet.photon.js"></script>
+        <script src="js/proj4.js"></script>
+        <script src="js/proj4leaflet.js"></script>
         <script src="data/subdivisionescrucemasvolcan_2.js"></script>
         <script>
         var map = L.map('map', {
@@ -43,27 +55,24 @@
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-        // remove popup's row if "visible-with-data"
         function removeEmptyRowsFromPopupContent(content, feature) {
-         var tempDiv = document.createElement('div');
-         tempDiv.innerHTML = content;
-         var rows = tempDiv.querySelectorAll('tr');
-         for (var i = 0; i < rows.length; i++) {
-             var td = rows[i].querySelector('td.visible-with-data');
-             var key = td ? td.id : '';
-             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
-                 rows[i].parentNode.removeChild(rows[i]);
-             }
-         }
-         return tempDiv.innerHTML;
+           var tempDiv = document.createElement('div');
+           tempDiv.innerHTML = content;
+           var rows = tempDiv.querySelectorAll('tr');
+           for (var i = 0; i < rows.length; i++) {
+               var td = rows[i].querySelector('td.visible-with-data');
+               var key = td ? td.id : '';
+               if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                   rows[i].parentNode.removeChild(rows[i]);
+               }
+           }
+           return tempDiv.innerHTML;
         }
-        // add class to format popup if it contains media
 		function addClassToPopupIfMedia(content, popup) {
 			var tempDiv = document.createElement('div');
 			tempDiv.innerHTML = content;
 			if (tempDiv.querySelector('td img')) {
 				popup._contentNode.classList.add('media');
-					// Delay to force the redraw
 					setTimeout(function() {
 						popup.update();
 					}, 10);
@@ -106,63 +115,63 @@
         function pop_subdivisionescrucemasvolcan_2(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <th scope="row">ROL</th>\
+                        <th scope="row">ROL:</th>\
                         <td>' + (feature.properties['ROL'] !== null ? autolinker.link(String(feature.properties['ROL']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">ZONA PRI</th>\
+                        <th scope="row">ZONA PRI:</th>\
                         <td>' + (feature.properties['ZONA PRI'] !== null ? autolinker.link(String(feature.properties['ZONA PRI']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">ZONA</th>\
+                        <th scope="row">ZONA:</th>\
                         <td>' + (feature.properties['ZONA'] !== null ? autolinker.link(String(feature.properties['ZONA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">ESTADO LAG</th>\
+                        <th scope="row">ESTADO LAG:</th>\
                         <td>' + (feature.properties['ESTADO LAG'] !== null ? autolinker.link(String(feature.properties['ESTADO LAG']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">CONSTRUC.</th>\
+                        <th scope="row">CONSTRUCCIONES:</th>\
                         <td>' + (feature.properties['CONSTRUC.'] !== null ? autolinker.link(String(feature.properties['CONSTRUC.']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">APROBACION </th>\
+                        <th scope="row">APROBACIÓN PERMISO:</th>\
                         <td>' + (feature.properties['APROBACION '] !== null ? autolinker.link(String(feature.properties['APROBACION ']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">FECHA</th>\
+                        <th scope="row">FECHA:</th>\
                         <td>' + (feature.properties['FECHA'] !== null ? autolinker.link(String(feature.properties['FECHA']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">UBICACIÓN</th>\
+                        <th scope="row">UBICACIÓN:</th>\
                         <td>' + (feature.properties['UBICACIÓN'] !== null ? autolinker.link(String(feature.properties['UBICACIÓN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">PROPIETARIO</th>\
+                        <th scope="row">PROPIETARIO:</th>\
                         <td>' + (feature.properties['PROPIETARIO'] !== null ? autolinker.link(String(feature.properties['PROPIETARIO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">SUPERFICIE</th>\
+                        <th scope="row">SUPERFICIE:</th>\
                         <td>' + (feature.properties['SUPERFICIE'] !== null ? autolinker.link(String(feature.properties['SUPERFICIE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">DESTINO </th>\
+                        <th scope="row">DESTINO:</th>\
                         <td>' + (feature.properties['DESTINO '] !== null ? autolinker.link(String(feature.properties['DESTINO ']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">RECEPCIÓN</th>\
+                        <th scope="row">RECEPCIÓN:</th>\
                         <td>' + (feature.properties['RECEPCIÓN'] !== null ? autolinker.link(String(feature.properties['RECEPCIÓN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">PELIGRO VOLCANICO </th>\
+                        <th scope="row">PELIGRO VOLCANICO:</th>\
                         <td>' + (feature.properties['PELIGRO VOLCANICO '] !== null ? autolinker.link(String(feature.properties['PELIGRO VOLCANICO ']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
+            layer.on('popupopen', function(e) {
+                addClassToPopupIfMedia(content, e.popup);
+            });
+            layer.bindPopup(content, { maxHeight: 400 });
         }
 
         function style_subdivisionescrucemasvolcan_2_0() {
@@ -173,7 +182,7 @@
                 dashArray: '',
                 lineCap: 'butt',
                 lineJoin: 'miter',
-                weight: 1.0, 
+                weight: 1.0,
                 fill: true,
                 fillOpacity: 1,
                 fillColor: 'rgba(196,60,57,0.0)',
@@ -194,20 +203,114 @@
         });
         bounds_group.addLayer(layer_subdivisionescrucemasvolcan_2);
         map.addLayer(layer_subdivisionescrucemasvolcan_2);
+
+        // Visualizador de Coordenadas Lat/Long y UTM
+        var crs = new L.Proj.CRS('EPSG:32718', '+proj=utm +zone=18 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs', {
+            resolutions: [
+                2800, 1400, 700, 350, 175, 87.5, 43.75, 21.875, 10.9375, 5.46875, 2.734375, 1.3671875, 0.68359375, 0.341796875, 0.1708984375, 0.08544921875, 0.042724609375, 0.0213623046875, 0.01068115234375, 0.005340576171875
+            ],
+            origin: [-722956.883, -7120760.383]
+        });
+
+        var latlngControl = L.control({ position: 'bottomleft' });
+
+        latlngControl.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'latlng-control');
+            div.innerHTML = 'Mueve el cursor sobre el mapa para ver las coordenadas.';
+            return div;
+        };
+        latlngControl.addTo(map);
+
+        map.on('mousemove', function(e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
+            var utm = crs.project(e.latlng);
+            var easting = utm.x.toFixed(2);
+            var northing = utm.y.toFixed(2);
+            latlngControl.getContainer().innerHTML = `<b>Lat/Long:</b> ${lat}, ${lng}<br><b>UTM (18S):</b> ${easting}, ${northing}`;
+        });
+
+        // Buscador de Coordenadas Lat/Long
+        var latLngSearchControl = L.Control.extend({
+            onAdd: function(map) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom leaflet-control-layers-search');
+                container.innerHTML = '<input type="text" id="latlng-search" placeholder="Lat, Lng" style="width: 130px; margin-bottom: 5px;">';
+                L.DomEvent.disableClickPropagation(container);
+                L.DomEvent.on(container, 'keypress', function(e) {
+                    if (e.keyCode === 13) {
+                        var query = document.getElementById('latlng-search').value.trim();
+                        var parts = query.split(',').map(p => parseFloat(p.trim()));
+                        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                            var lat = parts[0];
+                            var lng = parts[1];
+                            var latlng = L.latLng(lat, lng);
+                            map.setView(latlng, 15);
+                            
+                            if (window.searchMarker) {
+                                map.removeLayer(window.searchMarker);
+                            }
+                            window.searchMarker = L.marker(latlng).addTo(map)
+                                .bindPopup(`<b>Coordenada Buscada:</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`)
+                                .openPopup();
+                        }
+                    }
+                });
+                return container;
+            }
+        });
+
+        // Buscador de Roles
+        var rolSearchControl = L.Control.extend({
+            onAdd: function(map) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom leaflet-control-layers-search');
+                container.innerHTML = '<input type="text" id="rol-search" placeholder="Buscar ROL..." style="width: 130px;">';
+                L.DomEvent.disableClickPropagation(container);
+                L.DomEvent.on(container, 'keypress', function(e) {
+                    if (e.keyCode === 13) {
+                        var query = document.getElementById('rol-search').value.trim().toUpperCase();
+                        var foundFeatures = [];
+                        layer_subdivisionescrucemasvolcan_2.eachLayer(function(layer) {
+                            if (layer.feature.properties['ROL'].toUpperCase() === query) {
+                                foundFeatures.push(layer);
+                            }
+                        });
+
+                        if (foundFeatures.length > 0) {
+                            var group = new L.featureGroup(foundFeatures);
+                            map.fitBounds(group.getBounds());
+                        } else {
+                            alert('ROL no encontrado.');
+                        }
+                    }
+                });
+                return container;
+            }
+        });
+
         var overlaysTree = [
-            {label: '<img src="legend/subdivisionescrucemasvolcan_2.png" /> subdivisiones cruce mas volcan', layer: layer_subdivisionescrucemasvolcan_2},
-            {label: "Google Satellite", layer: layer_GoogleSatellite_1},
-            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},]
-        var lay = L.control.layers.tree(null, overlaysTree,{
-            //namedToggle: true,
-            //selectorBack: false,
-            //closedSymbol: '&#8862; &#x1f5c0;',
-            //openedSymbol: '&#8863; &#x1f5c1;',
-            //collapseAll: 'Collapse all',
-            //expandAll: 'Expand all',
+            {
+                label: '<b>Capas de Información</b>',
+                children: [
+                    { label: '<img src="legend/subdivisionescrucemasvolcan_2.png" /> subdivisiones cruce mas volcan', layer: layer_subdivisionescrucemasvolcan_2},
+                ]
+            },
+            {
+                label: '<b>Mapas Base</b>',
+                children: [
+                    {label: "Google Satellite", layer: layer_GoogleSatellite_1},
+                    {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},
+                ]
+            }
+        ];
+
+        var lay = L.control.layers.tree(null, overlaysTree, {
             collapsed: true,
         });
+
         lay.addTo(map);
+        new latLngSearchControl({ position: 'topright' }).addTo(map);
+        new rolSearchControl({ position: 'topright' }).addTo(map);
+        
         setBounds();
         </script>
     </body>
