@@ -216,9 +216,20 @@
         });
 
         var overlaysTree = [
-            {label: '<img src="legend/subdivisionescrucemasvolcan_2.png" /> subdivisiones cruce mas volcan', layer: layer_subdivisionescrucemasvolcan_2},
-            {label: "Google Satellite", layer: layer_GoogleSatellite_1},
-            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},]
+            {
+                label: '<b>Capas de Información</b>',
+                children: [
+                    { label: '<img src="legend/subdivisionescrucemasvolcan_2.png" /> subdivisiones cruce mas volcan', layer: layer_subdivisionescrucemasvolcan_2},
+                ]
+            },
+            {
+                label: '<b>Mapas Base</b>',
+                children: [
+                    {label: "Google Satellite", layer: layer_GoogleSatellite_1},
+                    {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},
+                ]
+            }
+        ];
         var lay = L.control.layers.tree(null, overlaysTree,{
             collapsed: true,
         });
