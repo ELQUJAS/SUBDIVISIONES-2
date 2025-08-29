@@ -42,8 +42,6 @@
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
         <script src="js/leaflet.photon.js"></script>
-        <script src="js/proj4.js"></script>
-        <script src="js/proj4leaflet.js"></script>
         <script src="data/subdivisionescrucemasvolcan_2.js"></script>
         <script>
         var map = L.map('map', {
@@ -201,14 +199,7 @@
         bounds_group.addLayer(layer_subdivisionescrucemasvolcan_2);
         map.addLayer(layer_subdivisionescrucemasvolcan_2);
 
-        // Visualizador de Coordenadas Lat/Long y UTM
-        var crs = new L.Proj.CRS('EPSG:32718', '+proj=utm +zone=18 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs', {
-            resolutions: [
-                2800, 1400, 700, 350, 175, 87.5, 43.75, 21.875, 10.9375, 5.46875, 2.734375, 1.3671875, 0.68359375, 0.341796875, 0.1708984375, 0.08544921875, 0.042724609375, 0.0213623046875, 0.01068115234375, 0.005340576171875
-            ],
-            origin: [-722956.883, -7120760.383]
-        });
-
+        // Visualizador de Coordenadas Lat/Long
         var latlngControl = L.control({ position: 'bottomleft' });
 
         latlngControl.onAdd = function(map) {
@@ -221,34 +212,17 @@
         map.on('mousemove', function(e) {
             var lat = e.latlng.lat.toFixed(6);
             var lng = e.latlng.lng.toFixed(6);
-            var utm = crs.project(e.latlng);
-            var easting = utm.x.toFixed(2);
-            var northing = utm.y.toFixed(2);
-            latlngControl.getContainer().innerHTML = `<b>Lat/Long:</b> ${lat}, ${lng}<br><b>UTM (18S):</b> ${easting}, ${northing}`;
+            latlngControl.getContainer().innerHTML = `<b>Lat/Long:</b> ${lat}, ${lng}`;
         });
 
         var overlaysTree = [
-            {
-                label: '<b>Capas de Información</b>',
-                children: [
-                    { label: '<img src="legend/subdivisionescrucemasvolcan_2.png" /> subdivisiones cruce mas volcan', layer: layer_subdivisionescrucemasvolcan_2},
-                ]
-            },
-            {
-                label: '<b>Mapas Base</b>',
-                children: [
-                    {label: "Google Satellite", layer: layer_GoogleSatellite_1},
-                    {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},
-                ]
-            }
-        ];
-
-        var lay = L.control.layers.tree(null, overlaysTree, {
+            {label: '<img src="legend/subdivisionescrucemasvolcan_2.png" /> subdivisiones cruce mas volcan', layer: layer_subdivisionescrucemasvolcan_2},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_1},
+            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
             collapsed: true,
         });
-
         lay.addTo(map);
-        
         setBounds();
         </script>
     </body>
