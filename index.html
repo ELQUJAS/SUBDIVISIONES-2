@@ -26,9 +26,6 @@
             font-family: sans-serif;
             font-size: 14px;
         }
-        .leaflet-control-layers-search {
-            margin-bottom: 10px;
-        }
         </style>
         <title>Mapa de Subdivisión Predial</title>
     </head>
@@ -230,63 +227,6 @@
             latlngControl.getContainer().innerHTML = `<b>Lat/Long:</b> ${lat}, ${lng}<br><b>UTM (18S):</b> ${easting}, ${northing}`;
         });
 
-        // Buscador de Coordenadas Lat/Long
-        var latLngSearchControl = L.Control.extend({
-            onAdd: function(map) {
-                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom leaflet-control-layers-search');
-                container.innerHTML = '<input type="text" id="latlng-search" placeholder="Lat, Lng" style="width: 130px; margin-bottom: 5px;">';
-                L.DomEvent.disableClickPropagation(container);
-                L.DomEvent.on(container, 'keypress', function(e) {
-                    if (e.keyCode === 13) {
-                        var query = document.getElementById('latlng-search').value.trim();
-                        var parts = query.split(',').map(p => parseFloat(p.trim()));
-                        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                            var lat = parts[0];
-                            var lng = parts[1];
-                            var latlng = L.latLng(lat, lng);
-                            map.setView(latlng, 15);
-                            
-                            if (window.searchMarker) {
-                                map.removeLayer(window.searchMarker);
-                            }
-                            window.searchMarker = L.marker(latlng).addTo(map)
-                                .bindPopup(`<b>Coordenada Buscada:</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`)
-                                .openPopup();
-                        }
-                    }
-                });
-                return container;
-            }
-        });
-
-        // Buscador de Roles
-        var rolSearchControl = L.Control.extend({
-            onAdd: function(map) {
-                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom leaflet-control-layers-search');
-                container.innerHTML = '<input type="text" id="rol-search" placeholder="Buscar ROL..." style="width: 130px;">';
-                L.DomEvent.disableClickPropagation(container);
-                L.DomEvent.on(container, 'keypress', function(e) {
-                    if (e.keyCode === 13) {
-                        var query = document.getElementById('rol-search').value.trim().toUpperCase();
-                        var foundFeatures = [];
-                        layer_subdivisionescrucemasvolcan_2.eachLayer(function(layer) {
-                            if (layer.feature.properties['ROL'].toUpperCase() === query) {
-                                foundFeatures.push(layer);
-                            }
-                        });
-
-                        if (foundFeatures.length > 0) {
-                            var group = new L.featureGroup(foundFeatures);
-                            map.fitBounds(group.getBounds());
-                        } else {
-                            alert('ROL no encontrado.');
-                        }
-                    }
-                });
-                return container;
-            }
-        });
-
         var overlaysTree = [
             {
                 label: '<b>Capas de Información</b>',
@@ -308,8 +248,6 @@
         });
 
         lay.addTo(map);
-        new latLngSearchControl({ position: 'topright' }).addTo(map);
-        new rolSearchControl({ position: 'topright' }).addTo(map);
         
         setBounds();
         </script>
